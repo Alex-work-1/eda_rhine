@@ -29,8 +29,15 @@ runoff_dt[, month := month(time)] # Creating month number column
 runoff_dt[, mon_mean := mean(value), by = month] # month mean column
 
 
+
+
+
 runoff_month <- runoff_dt[months(runoff_dt$time) %in% month.name[1:3], .(month, mon_mean)] # creating new data table with January February and March months
 
 
+runoff_month <- unique(runoff_month) # removing the repetitions
 
-unique(runoff_month) # displaying data table unique values
+runoff_month[, pecentage_change := paste0(as.character(round( (mon_mean / shift(mon_mean)) * 100 - 100, digits = 2 )), '%')] # calculating and adding a precentage change colun
+
+# Displaying table
+runoff_month
