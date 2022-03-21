@@ -1,4 +1,4 @@
-setwd("~/Desktop/University system/EDA/other code")
+setwd("~/Desktop/University system/EDA/EDA_GIT_code")
 
 
 runoff <- 130 #m3/s 
@@ -45,7 +45,7 @@ runoff_dt
 
 
 
-runoff_month <- runoff_dt[, .(mon, mon_mean)]  # getting the table only with this collumns
+runoff_month <- runoff_dt[, .(month, mon_mean)]  # getting the table only with this collumns
 runoff_month
 unique(runoff_month)  # ?????
 
