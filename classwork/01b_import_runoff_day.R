@@ -16,18 +16,18 @@ id_sname <- runoff_stations[, .(id, sname)]
 
 file_count <- 1
 
-
-temp_dt <- fread(paste0(raw_path, fnames[file_count]))
-
-
-station_id <- substr(fnames[file_count], 1, id_length)
-temp_dt <- cbind(id = factor(station_id), temp_dt)
+for(file_count in 1:n_station){
+  temp_dt <- fread(paste0(raw_path, fnames[file_count]))
 
 
-temp_dt <- id_sname[temp_dt, on = 'id']
+  station_id <- substr(fnames[file_count], 1, id_length)
+  temp_dt <- cbind(id = factor(station_id), temp_dt)
 
-runoff_day_raw <- rbind(runoff_day_raw, temp_dt)
 
+  temp_dt <- id_sname[temp_dt, on = 'id']
+
+  runoff_day_raw <- rbind(runoff_day_raw, temp_dt)
+}
 
 runoff_day_raw[, 'hh:mm' := NULL]
 
