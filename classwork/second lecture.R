@@ -11,7 +11,7 @@ str(runoff_stations)
 runoff_stations$station
 
 
-runoff_stations[, sname := factor(abbreviate(station))]
+runoff_stations[, sname := factor(abbreviate(station))] # abbreviate (limit words to 4 letters)
 runoff_stations[, id := factor(id)]
 runoff_stations[, lat := round(lat, 3)]
 runoff_stations[, lon := round(lon, 3)]
