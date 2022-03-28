@@ -72,7 +72,7 @@ to_plot <- runoff_stats[dt, on = 'sname']
 stations_amount<- nrow(runoff_stats)
 colours <-  c("#D35C37", "#BF9A77", "#D6C6B9", "#97B8C2")
 
-ggplot(to_plot, aes(x = mean_day, y = area, col = sname, cex = alt_class)) +
+ggplot(to_plot, aes(x = mean_day, y = area, col = sname,point_color = area_class, cex = alt_class)) +
   geom_point() +
   scale_color_manual(values = colorRampPalette(colours)(stations_amount)) +
   theme_bw()
