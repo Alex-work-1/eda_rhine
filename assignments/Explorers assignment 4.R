@@ -1,66 +1,77 @@
+#1) Which is the difference between the median and the 0.5 quantile?
+# There is no difference, it makes the same thing.
 
-# 1) In retrospect, is DOMA a representative station? Why do you think its behaviour is so different than the other stations?
-# In my opinion, it's can't be a representative station because every year data is so much different than the data on other stations. It could happen because of dam constarction near the station.
 
-# 2) In our analysis, we have used only river runoff. Precipitation is a factor strongly linked with runoff. Can you perform a similar analysis (boxplots and regression) for precipitation? Precipitation data averaged over the whole Rhine region can be found in the file precipitation_day.rds in folder data. What do you observe?
+#2) Why the median and the mean are not the same in Rhine runoff?
+# The data is not sorted, so it is skewed to 1 side.
 
-library(data.table)
-library(ggplot2)
+#3) Do you notice something strange regarding the location of the stations LOBI and REES? Can you think of a possible explanation?
+# LOBI is at a higher altitude than REES, even though it is closer to the sea. May be there is a hill.
 
-precipitation_day <- readRDS('data/raw/precip_day.rds')
-colset_4 <-  c("#D35C37", "#BF9A77", "#D6C6B9", "#97B8C2")
+#4) Which were the months, seasons, years with the highest/lowest runoff at each location? Try to present them in comprehensive way. Feel free to improvise!
+library(data.table) 
+library(ggplot2) 
 
-precipitation_day[, month := month(date)]
-precipitation_day[month == 12 | month == 1 | month == 2, season := 'winter']
-precipitation_day[month == 3 | month == 4 | month == 5, season := 'spring']
-precipitation_day[month == 6 | month == 7 | month == 8, season := 'summer']
-precipitation_day[month == 9 | month == 10 | month == 11, season := 'autumn']
-precipitation_day[, season := factor(season, levels = c('winter', 'spring', 'summer', 'autumn'))]
+# months
+runoff_month <- readRDS('./data/runoff_month.rds')
 
-precipitation_day[, year := year(date)]
-precipitation_winter <- precipitation_day[season == 'winter', 
-                            .(value = sum(value)), by = year]
-precipitation_summer <- precipitation_day[season == 'summer', 
-                            .(value = sum(value)), by = year]
+runoff_month[, min := min(value), by = 'sname']
+runoff_month[, max := max(value), by = 'sname']
+runoff_month_max <- runoff_month[runoff_month$value == runoff_month$max] 
+runoff_month_min <- runoff_month[runoff_month$value == runoff_month$min] 
 
-year_thres <- 1987
-to_plot <- rbind(cbind(precipitation_winter, season = factor('winter')), 
-                 cbind(precipitation_summer, season = factor('summer'))) 
+ggplot(runoff_month_max, aes(x = sname, y = max, label = month)) +
+  geom_point() +
+  geom_text(vjust = -0.5) 
 
-to_plot[year < year_thres, period := factor('pre_1987')]
-to_plot[year >= year_thres, period := factor('aft_1987')]
-to_plot[year < year_thres, period := factor('pre_1987')]
-to_plot[year >= year_thres, period := factor('aft_1987')]
+ggplot(runoff_month_min, aes(x = sname, y = min, label = month)) +
+  geom_point() +
+  geom_text(vjust = -0.5) 
 
-ggplot(to_plot[year >= 1957], aes(season, value, fill = period)) +
-  geom_boxplot() +
-  scale_fill_manual(values = colset_4[c(4, 1)]) +
-  xlab(label = "Season") +
-  ylab(label = "Precitation") +
-  theme_bw()
+# seasons
+runoff_summer <- readRDS('./data/runoff_summer.rds')
+runoff_winter <- readRDS('./data/runoff_winter.rds')
 
-ggplot(to_plot[season == 'summer' & year >= 1957], aes(x = year, y = value)) +
-  geom_line(col = colset_4[3])+
-  geom_point(col = colset_4[3])+
-  geom_smooth(method = 'lm', formula = y~x, se = 0, col = colset_4[1]) +
-  geom_smooth(method = 'loess', formula = y~x, se = 0, col = colset_4[4]) +
-  scale_color_manual(values = colset_4[c(1, 2, 4)]) +
-  xlab(label = "Year") +
-  ylab(label = "Precipitation Summer") +
-  theme_bw()
+runoff_summer[, min := min(value), by = 'sname']
+runoff_summer[, max := max(value), by = 'sname']
+runoff_summer_max <- runoff_summer[runoff_summer$value == runoff_summer$max] 
+runoff_summer_min <- runoff_summer[runoff_summer$value == runoff_summer$min] 
 
-ggplot(to_plot[season == 'winter' & year >= 1957], aes(x = year, y = value)) +
-  geom_line(col = colset_4[3])+
-  geom_point(col = colset_4[3])+
-  geom_smooth(method = 'lm', formula = y~x, se = 0, col = colset_4[1]) +
-  geom_smooth(method = 'loess', formula = y~x, se = 0, col = colset_4[4]) +
-  scale_color_manual(values = colset_4[c(1, 2, 4)]) +
-  xlab(label = "Year") +
-  ylab(label = "Precipitation Winter") +
-  theme_bw()
+ggplot(runoff_summer_max, aes(x = sname, y = max, label = year)) +
+  geom_point() +
+  geom_text(vjust = -0.5)
 
-# 3) What are your thoughts about the changes in Rhine runoff after completing EDA?
-# My thoughts: We can see the changes in runoff and precipitation, but in my opinion there is not enougth data for being sure that the change in precipitation and runoff is the result of climate change.
+ggplot(runoff_summer_min, aes(x = sname, y = min, label = year)) +
+  geom_point() +
+  geom_text(vjust = -0.5) 
 
-# 4) Which are some future analyses or other factors that should be examined? Present some arguments related to the findings so far.
-# Perhaps the air pollution, amount of fabrics by region, temperature and presence of dams could tell more about effects of climate change on runoffs and increase the quality of collected data.
+runoff_winter[, min := min(value), by = 'sname']
+runoff_winter[, max := max(value), by = 'sname']
+
+runoff_winter_max <- runoff_winter[runoff_winter$value == runoff_winter$max] 
+runoff_winter_min <- runoff_winter[runoff_winter$value == runoff_winter$min] 
+
+ggplot(runoff_winter_max, aes(x = sname, y = max, label = year)) +
+  geom_point() +
+  geom_text(vjust = -0.5)
+
+ggplot(runoff_winter_min, aes(x = sname, y = min, label = year)) +
+  geom_point() +
+  geom_text(vjust = -0.5) 
+
+#years
+runoff_year <- readRDS('./data/runoff_year.rds')
+
+runoff_year[, min := min(value), by = 'sname']
+runoff_year[, max := max(value), by = 'sname']
+
+runoff_year_max <- runoff_year[runoff_year$value == runoff_year$max] 
+runoff_year_min <- runoff_year[runoff_year$value == runoff_year$min] 
+
+ggplot(runoff_year_max, aes(x = sname, y = max, label = year)) +
+  geom_point() +
+  geom_text(vjust = -0.5) 
+
+ggplot(runoff_year_min, aes(x = sname, y = min, label = year)) +
+  geom_point() +
+  geom_text(vjust = -0.5) 
